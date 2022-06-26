@@ -1,4 +1,4 @@
-name: Action Sample
+name: Synopsis Generator Test
  
 on:
   push:
