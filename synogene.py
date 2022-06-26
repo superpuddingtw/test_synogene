@@ -549,7 +549,7 @@ def syno_conv():
 
 syno_conv()
 
-for n in range(1):
+for n in range(10):
 
     synopsis_base="%synopsis_base%"
     c=0
@@ -567,3 +567,4 @@ for n in range(1):
 
         c=c+1
     print(syno)
+    print("")
