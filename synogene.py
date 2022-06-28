@@ -1,12 +1,19 @@
 # -*- coding: utf-8 -*-
 
 import random
+import tkinter
+import pyperclip as pc
+
+synopsis_str = ""
+outfile="narou_synopsis_generator_out.txt"
+use_encode='utf-8' #shift-jis or utf-8
+
 
 synopsis_source=[ #注意：現在のバージョンでは、出現順序が重要です。行の順序を入れ替えると、うまく動かなくなる恐れがあります。
         "#%synopsis_base%",
-          "%舞台序盤%。%目的TOP%。%序盤活躍%。%誰TOP%が、%誰TOP%と仲間になり、%どうする%。しかし、%中盤ピンチ%。%どうするTOP%。%決戦準備%。%終盤活躍%。%報酬%。%どうするend%。%エンディング%。<end>",
-          "%舞台序盤%。%誰TOP%が、%されるTOP%。 %目的TOP%。%序盤活躍%。%誰TOP%と仲間になり、%どうする%。しかし、%中盤ピンチ%。%決戦準備%。%どうするTOP%。%終盤活躍%。%報酬%。%どうするend%。%エンディング%。<end>",
-          "%舞台序盤%。%誰TOP%が、%誰TOP%とともに、%されるTOP%。%目的TOP%。%序盤活躍%。%どうするsubTOP%。そして、%どうするTOP%。しかし、%中盤ピンチ%。%決戦準備% %終盤活躍%。%報酬%。%どうするend%。%エンディング%。<end>",
+          "%舞台序盤%。%目的TOP%。%序盤活躍%。%誰TOP%が、%誰TOP%と仲間になり、%どうする%。しかし、%中盤ピンチ%。%どうするTOP%。%決戦準備%。%終盤活躍%。%報酬%。%どうするend%。%エンディング%。\n<end>",
+          "%舞台序盤%。%誰TOP%が、%されるTOP%。 %目的TOP%。%序盤活躍%。%誰TOP%と仲間になり、%どうする%。しかし、%中盤ピンチ%。%決戦準備%。%どうするTOP%。%終盤活躍%。%報酬%。%どうするend%。%エンディング%。\n<end>",
+          "%舞台序盤%。%誰TOP%が、%誰TOP%とともに、%されるTOP%。%目的TOP%。%序盤活躍%。%どうするsubTOP%。そして、%どうするTOP%。しかし、%中盤ピンチ%。%決戦準備% %終盤活躍%。%報酬%。%どうするend%。%エンディング%。\n<end>",
 
      #いつ
         "#%舞台序盤%", "%舞台序盤どこTOP%での物語。%災厄%が起こる",
@@ -513,12 +520,46 @@ synopsis_source=[ #注意：現在のバージョンでは、出現順序が重�
                    
 ]
 
-
-
 s_def=[]
 s_start=[]
 s_num=[]
 s_str=[]
+
+#ウインドウ設定
+tk=tkinter.Tk()
+tk.title(u"なろう系あらすじジェネレータ v2.0")
+tk.minsize(640,320)
+
+#ウインドウ表示
+win=tkinter.Canvas(bg="black",width=640,height=320)
+win.place(x=0,y=0)
+
+#txt_synopsis=tkinter.Label(text=u"ここにランダムで作成したあらすじが表示されます。")
+txt_synopsis=tkinter.Text(bg="white",width=78,height=12)
+#txt_synopsis.place(x=0,y=0)
+txt_synopsis.grid(column=0, row=0)
+
+txt_synopsis.pack()
+
+
+btn_create = tkinter.Button(tk, text='自動作成')
+btn_create.place(x=50, y=200)
+
+btn_quit = tkinter.Button(tk, text='終了')
+btn_quit.place(x=280, y=200)
+
+btn_clipboard = tkinter.Button(tk, text='クリップボードにコピー')
+btn_clipboard.place(x=130, y=200)
+
+bln = tkinter.BooleanVar()
+bln.set(True)
+cb_append2file_auto = tkinter.Checkbutton(tk, variable=bln, text="生成したタイトルを自動でファイル("+outfile+")に保存する")
+cb_append2file_auto.place(x=80,y=240)
+
+btn_append2file = tkinter.Button(text=outfile+"に出力")
+btn_append2file.place(x=100, y=280)
+
+
 
 def syno_conv():
     global synopsis_source,s_def,s_start,s_num,s_str
@@ -549,8 +590,11 @@ def syno_conv():
 
 syno_conv()
 
-for n in range(1):
 
+
+def make_synopsis():
+    global synopsis_str
+    
     synopsis_base="%synopsis_base%"
     c=0
     syno = synopsis_base
@@ -566,4 +610,34 @@ for n in range(1):
 
 
         c=c+1
-    print(syno)
+    synopsis_str=syno
+
+def append2file():
+    global title_str
+    with open(outfile, 'a') as f:
+        print(synopsis_str+'\n', file=f)
+    
+btn_append2file["command"]=append2file
+
+def display_synopsis():
+    make_synopsis()
+#    txt_synopsis["text"]=synopsis_str
+    txt_synopsis.delete('1.0', 'end')
+    txt_synopsis.insert('1.0',synopsis_str)
+    print(synopsis_str+'\n')
+    if(bln.get()):
+        append2file()
+btn_create["command"]=display_synopsis
+
+def copy2clipboard():
+    global synopsis_str
+    pc.copy(synopsis_str+'\n')    
+btn_clipboard["command"]=copy2clipboard
+
+def destroy_tk():
+    tk.destroy()
+btn_quit["command"]=destroy_tk
+
+
+tk.mainloop()
+
